@@ -19,6 +19,11 @@ provider:
     shouldStartNameWithService: true
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+    DB_HOST: store-instance.ccbahbazr4ka.eu-west-1.rds.amazonaws.com
+    DB_PORT: 5432
+    DATABASE: store
+    DB_USERNAME: postgres
+    DB_PASSWORD: 3j6Gc8OvL0BFDYagEPPu
 
 custom:
   webpack:
@@ -71,6 +76,13 @@ functions:
       - http:
           path: /products/{id}
           method: get
+          cors: true
+  addProduct:
+    handler: handler.addProduct
+    events:
+      - http:
+          path: /products
+          method: post
           cors: true
 
 #    The following are a few example events you can configure
