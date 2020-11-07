@@ -36,6 +36,6 @@ export const getProductById: APIGatewayProxyHandler = async (
       body: JSON.stringify({ message: error }),
     };
   } finally {
-    await client.end();
+    client.end();
   }
 };

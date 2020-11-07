@@ -6,7 +6,6 @@ import { ResponseBuilder } from '../utils/response-builder';
 export const addProduct: APIGatewayProxyHandler = async (
   event,
   _context,
-  callback
 ) => {
   console.log('EVENT', event);
   const client = new DatabaseClient().configure();
@@ -22,18 +21,17 @@ export const addProduct: APIGatewayProxyHandler = async (
       } = await client.query(
         `insert into products (title, description, price)
           values (
-            ${title ? '${title}' : null},
+            ${title ? `'${title}'` : null},
             ${description ? `'${description}'` : null},
-            ${price || null})
+            ${price})
           returning id;`
       );
 
       if (newProductId) {
         await client.query(
           `insert into stocks (product_id, product_count)
-            values (${newProductId ? '${newProductId}' : null}, ${
-            count || null
-          });`
+            values (${newProductId ? `'${newProductId}'` : null},
+            ${count});`
         );
 
         return {
@@ -49,24 +47,19 @@ export const addProduct: APIGatewayProxyHandler = async (
     };
   } catch (error) {
     if (error.code === '23502') {
-      callback(
-        JSON.stringify({
-          ...ResponseBuilder.clientError(),
-          body: JSON.stringify({
-            message: 'Invalid data received from client',
-          }),
-        })
-      );
-      return;
+      return {
+        ...ResponseBuilder.clientError(),
+        body: JSON.stringify({
+          message: 'Invalid data received from client',
+        }),
+      };
     }
 
-    callback(
-      JSON.stringify({
-        ...ResponseBuilder.serverError(),
-        body: JSON.stringify({ message: 'Server error' }),
-      })
-    );
+    return {
+      ...ResponseBuilder.serverError(),
+      body: JSON.stringify({ message: 'Server error' }),
+    };
   } finally {
-    await client.end();
+    client.end();
   }
 };

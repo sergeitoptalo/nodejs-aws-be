@@ -10,6 +10,7 @@ export const getProductsList: APIGatewayProxyHandler = async () => {
     const { rows: products } = await client.query(
       `select * from products left join stocks on products.id = stocks.product_id`
     );
+
     return {
       ...ResponseBuilder.success(),
       body: JSON.stringify(products),
@@ -20,6 +21,6 @@ export const getProductsList: APIGatewayProxyHandler = async () => {
       body: JSON.stringify({ message: error }),
     };
   } finally {
-    await client.end();
+    client.end();
   }
 };

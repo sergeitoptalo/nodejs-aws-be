@@ -1,13 +1,15 @@
 export class ResponseBuilder {
-  static success() {
-    return { ...this.addHeaders(), statusCode: 200 };
-  }
-
   static addHeaders() {
     return {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
     };
+  }
+
+  static success() {
+    return { ...this.addHeaders(), statusCode: 200 };
   }
 
   static serverError() {
