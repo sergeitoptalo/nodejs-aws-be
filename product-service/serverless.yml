@@ -1,12 +1,5 @@
-
-
 service: product-service
-# app and org for use with dashboard.serverless.com
-#app: your-app-name
-#org: your-org-name
 
-# You can pin your service to only deploy with a specific Serverless version
-# Check out our docs for more details
 frameworkVersion: '2'
 
 provider:
@@ -19,11 +12,6 @@ provider:
     shouldStartNameWithService: true
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
-    DB_HOST: store-instance.ccbahbazr4ka.eu-west-1.rds.amazonaws.com
-    DB_PORT: 5432
-    DATABASE: store
-    DB_USERNAME: postgres
-    DB_PASSWORD: 3j6Gc8OvL0BFDYagEPPu
 
 custom:
   webpack:
@@ -32,6 +20,7 @@ custom:
 
 plugins:
   - serverless-webpack
+  - serverless-dotenv-plugin
 # you can add statements to the Lambda function's IAM Role here
 #  iamRoleStatements:
 #    - Effect: "Allow"

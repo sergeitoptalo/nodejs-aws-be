@@ -3,15 +3,14 @@ import DatabaseClient from '../db/db-client';
 import { Product } from '../models/product.model';
 import { ResponseBuilder } from '../utils/response-builder';
 
-export const addProduct: APIGatewayProxyHandler = async (
-  event,
-  _context,
-) => {
+export const addProduct: APIGatewayProxyHandler = async (event, _context) => {
   console.log('EVENT', event);
-  const client = new DatabaseClient().configure();
-  await client.connect();
+  let client: DatabaseClient;
 
   try {
+    client = new DatabaseClient().configure();
+    await client.connect();
+
     const newProductData: Product = JSON.parse(event.body);
 
     if (newProductData) {
@@ -20,45 +19,29 @@ export const addProduct: APIGatewayProxyHandler = async (
         rows: [{ id: newProductId }],
       } = await client.query(
         `insert into products (title, description, price)
-          values (
-            ${title ? `'${title}'` : null},
-            ${description ? `'${description}'` : null},
-            ${price})
-          returning id;`
+          values ($1, $2, $3)
+          returning id;`,
+        [title, description, price]
       );
 
       if (newProductId) {
         await client.query(
           `insert into stocks (product_id, product_count)
-            values (${newProductId ? `'${newProductId}'` : null},
-            ${count});`
+            values ($1, $2);`,
+          [newProductId, count]
         );
 
-        return {
-          ...ResponseBuilder.success(),
-          body: JSON.stringify({ message: 'New product was added' }),
-        };
+        return ResponseBuilder.success('New product was added');
       }
-    }
 
-    return {
-      ...ResponseBuilder.clientError(),
-      body: JSON.stringify({ message: 'Invalid data received from client' }),
-    };
+      return ResponseBuilder.clientError('Invalid data received from client');
+    }
   } catch (error) {
     if (error.code === '23502') {
-      return {
-        ...ResponseBuilder.clientError(),
-        body: JSON.stringify({
-          message: 'Invalid data received from client',
-        }),
-      };
+      return ResponseBuilder.clientError('Invalid data received from client');
     }
 
-    return {
-      ...ResponseBuilder.serverError(),
-      body: JSON.stringify({ message: 'Server error' }),
-    };
+    return ResponseBuilder.serverError('Server error');
   } finally {
     client.end();
   }

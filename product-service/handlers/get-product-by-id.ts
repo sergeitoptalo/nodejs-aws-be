@@ -7,34 +7,27 @@ export const getProductById: APIGatewayProxyHandler = async (
   _context
 ) => {
   const idFromParams = event.pathParameters.id;
-
-  const client = new DatabaseClient().configure();
-  await client.connect();
+  let client: DatabaseClient;
 
   try {
+    client = new DatabaseClient().configure();
+    await client.connect();
+
     const {
       rows: [product],
     } = await client.query(
       `select * from products left join stocks
       on products.id = stocks.product_id
-      where id = '${idFromParams}';`
+      where id = $1;`,
+      [idFromParams]
     );
 
     if (product) {
-      return {
-        ...ResponseBuilder.success(),
-        body: JSON.stringify(product),
-      };
+      return ResponseBuilder.success(product);
     }
-    return {
-      ...ResponseBuilder.clientError(),
-      body: JSON.stringify({ message: 'Not found' }),
-    };
+    return ResponseBuilder.clientError({ message: 'Not found' });
   } catch (error) {
-    return {
-      ...ResponseBuilder.serverError(),
-      body: JSON.stringify({ message: error }),
-    };
+    return ResponseBuilder.serverError({ message: error });
   } finally {
     client.end();
   }

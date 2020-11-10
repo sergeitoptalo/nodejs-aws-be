@@ -45,8 +45,8 @@ export default class DatabaseClient {
     return await this.client.connect();
   }
 
-  public async query(params: string) {
-    return await this.client.query(params);
+  public async query(params: string, values?: Array<unknown>) {
+    return await this.client.query(params, values);
   }
 
   public async end() {

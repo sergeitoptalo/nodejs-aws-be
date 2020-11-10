@@ -1,22 +1,32 @@
 export class ResponseBuilder {
   static addHeaders() {
     return {
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
     };
   }
 
-  static success() {
-    return { ...this.addHeaders(), statusCode: 200 };
+  static success(payload: unknown) {
+    return {
+      headers: this.addHeaders(),
+      statusCode: 200,
+      body: payload ? JSON.stringify(payload) : null,
+    };
   }
 
-  static serverError() {
-    return { ...this.addHeaders(), statusCode: 500 };
+  static serverError(payload: unknown) {
+    return {
+      headers: this.addHeaders(),
+      statusCode: 500,
+      body: payload ? JSON.stringify(payload) : null,
+    };
   }
 
-  static clientError() {
-    return { ...this.addHeaders(), statusCode: 400 };
+  static clientError(payload: unknown) {
+    return {
+      headers: this.addHeaders(),
+      statusCode: 400,
+      body: payload ? JSON.stringify(payload) : null,
+    };
   }
 }
