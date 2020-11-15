@@ -1,36 +1,22 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { getProductsData } from '../data/products';
-// import { getTechnologyNews } from '../utils/get-news';
-
-const data = getProductsData();
+import DatabaseClient from '../db/db-client';
+import { ResponseBuilder } from '../utils/response-builder';
 
 export const getProductsList: APIGatewayProxyHandler = async () => {
-  /**
-   * Commented code demonstrates
-   * the asynchronous data retrieval
-   * inside lambda function
-   */
+  let client: DatabaseClient;
 
-  /* const latestTechnologyNews = await getTechnologyNews();
+  try {
+    client = new DatabaseClient().configure();
+    await client.connect();
 
-  return {
-    statusCode: 200,
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-    },
-    body: JSON.stringify({
-      products: data,
-      news: latestTechnologyNews.data.articles,
-    }),
-  }; */
+    const { rows: products } = await client.query(
+      `select * from products left join stocks on products.id = stocks.product_id`
+    );
 
-  return {
-    statusCode: 200,
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-    },
-    body: JSON.stringify(data),
-  };
+    return ResponseBuilder.success(products);
+  } catch (error) {
+    return ResponseBuilder.serverError({ message: error });
+  } finally {
+    client.end();
+  }
 };

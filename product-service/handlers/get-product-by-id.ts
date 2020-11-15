@@ -1,33 +1,34 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { getProductsData } from '../data/products';
-import { Product } from '../models/product.model';
-
-const data: Array<Product> = getProductsData();
+import DatabaseClient from '../db/db-client';
+import { ResponseBuilder } from '../utils/response-builder';
 
 export const getProductById: APIGatewayProxyHandler = async (
   event,
   _context
 ) => {
   const idFromParams = event.pathParameters.id;
-  const product = data.find((item) => item.id === idFromParams);
+  let client: DatabaseClient;
 
-  if (!product) {
-    return {
-      statusCode: 404,
-      body: JSON.stringify({ message: 'Not found' }),
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json',
-      },
-    };
+  try {
+    client = new DatabaseClient().configure();
+    await client.connect();
+
+    const {
+      rows: [product],
+    } = await client.query(
+      `select * from products left join stocks
+      on products.id = stocks.product_id
+      where id = $1;`,
+      [idFromParams]
+    );
+
+    if (product) {
+      return ResponseBuilder.success(product);
+    }
+    return ResponseBuilder.clientError({ message: 'Not found' });
+  } catch (error) {
+    return ResponseBuilder.serverError({ message: error });
+  } finally {
+    client.end();
   }
-
-  return {
-    statusCode: 200,
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-    },
-    body: JSON.stringify(product),
-  };
 };
