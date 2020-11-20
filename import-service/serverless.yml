@@ -12,6 +12,7 @@ provider:
     shouldStartNameWithService: true
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+    SQS_URL: !ImportValue CatalogItemsSQSQueue
   iamRoleStatements:
     - Effect: "Allow"
       Action: "s3:ListBucket"
@@ -22,6 +23,9 @@ provider:
         - "s3:*"
       Resource:
         - "arn:aws:s3:::sergei-toptalo-import-service/*"
+    - Effect: "Allow"
+      Action: "sqs:*"
+      Resource: !ImportValue CatalogItemsSQSQueueARN
 
 custom:
   webpack:

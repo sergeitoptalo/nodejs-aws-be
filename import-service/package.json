@@ -12,8 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "^2.788.0",
-    "csv-parser": "^2.3.3",
-    "end-of-stream": "^1.4.4"
+    "csv-parser": "^2.3.3"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.64",

@@ -7,6 +7,7 @@ import { Stream } from 'stream';
 export const importFileParser = (event: S3Event) => {
   const { IMPORT_SERVICE_BUCKET } = process.env;
   const s3: S3 = new AWS.S3({ region: 'eu-west-1' });
+  const sqs = new AWS.SQS({ region: 'eu-west-1' });
 
   event.Records.forEach((record) => {
     const objectKey: string = record.s3.object.key;
@@ -20,7 +21,12 @@ export const importFileParser = (event: S3Event) => {
     s3Stream
       .pipe(csv())
       .on('data', (data) => {
-        console.log(data);
+        sqs
+          .sendMessage({
+            QueueUrl: process.env.SQS_URL,
+            MessageBody: JSON.stringify(data),
+          })
+          .send();
       })
       .on('end', async () => {
         await s3
