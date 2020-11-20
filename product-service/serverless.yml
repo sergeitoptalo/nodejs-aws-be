@@ -36,9 +36,9 @@ plugins:
   - serverless-dotenv-plugin
 
 package:
-  #  include:
-  #    - include-me.js
-  #    - include-me-dir/**
+#  include:
+#    - include-me.js
+#    - include-me-dir/**
   exclude:
     - build/**
 #    - exclude-me.js
