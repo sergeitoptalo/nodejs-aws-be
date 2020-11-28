@@ -1,4 +1,5 @@
 import { Client } from 'pg';
+import { Product } from '../models/product.model';
 
 interface DatabaseOptions {
   host: string;
@@ -51,5 +52,35 @@ export default class DatabaseClient {
 
   public async end() {
     return await this.client.end();
+  }
+
+  public async createProduct(newProductData: Product) {
+    try {
+      const { title, description, price, count } = newProductData;
+      await this.client.query('BEGIN');
+
+      const {
+        rows: [{ id: newProductId, title: newProductTitle }],
+      } = await this.client.query(
+        `insert into products (title, description, price)
+                values ($1, $2, $3)
+                returning id, title;`,
+        [title, description, price]
+      );
+
+      if (newProductId) {
+        await this.client.query(
+          `insert into stocks (product_id, product_count)
+                  values ($1, $2);`,
+          [newProductId, count]
+        );
+        await this.client.query('COMMIT');
+
+        return newProductTitle;
+      }
+    } catch (error) {
+      this.client.query('ROLLBACK');
+      return error;
+    }
   }
 }
