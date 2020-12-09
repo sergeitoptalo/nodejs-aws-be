@@ -14,17 +14,11 @@ provider:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
     SQS_URL:
       Ref: SQSQueue
-    SNS_ARN:
-      Ref: SNSTopic
   iamRoleStatements:
     - Effect: 'Allow'
       Action: 'sqs:*'
       Resource:
         - Fn::GetAtt: [SQSQueue, Arn]
-    - Effect: 'Allow'
-      Action: 'sns:*'
-      Resource:
-        Ref: SNSTopic
 
 custom:
   webpack:
@@ -82,30 +76,6 @@ resources:
       Type: AWS::SQS::Queue
       Properties:
         QueueName: catalog-items-queue
-    SNSTopic:
-      Type: AWS::SNS::Topic
-      Properties:
-        TopicName: create-product-topic
-    SNSSubscriptionPrimary:
-      Type: AWS::SNS::Subscription
-      Properties:
-        Endpoint: ${env:SNS_SUBSCRIPTION_ENDPOINT_PRIMARY}
-        Protocol: email
-        TopicArn:
-          Ref: SNSTopic
-        FilterPolicy:
-          distribution:
-            - use_primary_email
-    SNSSubscriptionSecondary:
-      Type: AWS::SNS::Subscription
-      Properties:
-        Endpoint: ${env:SNS_SUBSCRIPTION_ENDPOINT_SECONDARY}
-        Protocol: email
-        TopicArn:
-          Ref: SNSTopic
-        FilterPolicy:
-          distribution:
-            - use_secondary_email
 
   Outputs:
     CatalogItemsQueue:
