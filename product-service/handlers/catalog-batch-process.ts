@@ -1,9 +1,7 @@
-import * as AWS from 'aws-sdk';
 import { SQSHandler } from 'aws-lambda';
 import DatabaseClient from '../db/db-client';
 
 export const catalogBatchProcess: SQSHandler = async (event) => {
-  const sns = new AWS.SNS({ region: 'eu-west-1' });
   let client: DatabaseClient;
 
   try {
@@ -20,28 +18,7 @@ export const catalogBatchProcess: SQSHandler = async (event) => {
       client.createProduct(productData)
     );
 
-    const titles = await Promise.all(promises);
-
-    // Generates 0 or 1 to test filter policy
-    const distributeNotifications = Math.round(Math.random());
-
-    sns
-      .publish({
-        Subject: 'New products were added',
-        Message: `The following products were added today: ${titles.join(
-          ', '
-        )}`,
-        TopicArn: process.env.SNS_ARN,
-        MessageAttributes: {
-          distribution: {
-            DataType: 'String',
-            StringValue: distributeNotifications
-              ? 'use_secondary_email'
-              : 'use_primary_email',
-          },
-        },
-      })
-      .send();
+    await Promise.all(promises);
   } catch (error) {
     console.log(error);
   } finally {

@@ -1,0 +1,31 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "esModuleInterop": true,
+        "target": "es2017",
+        "noImplicitAny": true,
+        "moduleResolution": "node",
+        "sourceMap": true,
+        "outDir": "build",
+        "baseUrl": ".",
+        "paths": {
+            "*": [
+                "node_modules/*",
+            ]
+        },
+        "resolveJsonModule": true,
+    },
+    "include": [
+        "./**/*.ts",
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts",
+        ".serverless/**/*",
+        ".webpack/**/*",
+        "_warmup/**/*",
+        ".vscode/**/*"
+    ]
+}
+  
