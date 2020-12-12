@@ -20,7 +20,7 @@
     "start:dev": "nodemon ./build/index.js",
     "build": "tsc",
     "eb-init": "eb init --platform node.js --region eu-west-1",
-    "eb-create": "eb create development --single --cname sergeitoptalo-bff-api-dev"
+    "eb-create": "eb create development-bff --single --cname sergeitoptalo-bff-api-dev"
   },
   "nodemonConfig": {
     "watch": [
